@@ -4,6 +4,7 @@ import com.revature.entity.Account;
 import com.revature.entity.AccountType;
 import com.revature.entity.User;
 import com.revature.exception.InvalidNewUserCredentials;
+import com.revature.exception.InvalidSelection;
 import com.revature.exception.LoginFail;
 import com.revature.repository.AccountDAO;
 import com.revature.repository.SqliteAccountDAO;
@@ -59,8 +60,6 @@ public class UserController {
         }
     }
 
-
-
     public void promptUserOptions(){
         System.out.println("What would you like to do today?");
         System.out.println("1. Account Summary");
@@ -80,10 +79,13 @@ public class UserController {
                     createAccount();
                     break;
                 case "3":
+                    closeAccount();
                     break;
                 case "4":
+                    withdraw();
                     break;
                 case "5":
+                    //deposite();
                     break;
                 case "q":
                     userStatus.setUser(null);
@@ -127,16 +129,12 @@ public class UserController {
         userStatus.setUser(userService.checkLoginCredentials(getCredentials()));
     }
 
-    private List<Account> printSummary(){
-        List<Account> listOfAccount = accountServices.getAccountSummary(userStatus.getUser());
+    private void printSummary(){
+        List<Account> accountList = accountServices.getAccountSummary(userStatus.getUser());
+        for(Account account : accountList){
+            System.out.println(account);
+        }
         System.out.println();
-        return listOfAccount;
-    }
-
-    private void withdrawFromAccount(){
-        //print list accounts from user
-        //get account_id from user input
-
     }
 
     private void createAccount(){
@@ -161,8 +159,44 @@ public class UserController {
         }
     }
 
+    //TODO: handel invalid input
+    private void closeAccount(){
+
+    }
+
     private void withdraw(){
 
+    }
+
+    private void deposit(){
+
+    }
+
+    private int promptAccountSelection(){
+        List<Account> accountList = accountServices.getAccountSummary(userStatus.getUser());
+        System.out.println("Which account would you like to close");
+        for(int i = 0; i < accountList.size(); i++) {
+            System.out.println((i+1) + ". " + accountList.get(i));
+        }
+        System.out.println("q. quit");
+        try {
+            String str = scanner.nextLine();
+            if(str.equals("q")){
+                return 0;
+            }
+
+            int input = Integer.parseInt(str);
+            if (input < 1 || input > accountList.size()) {
+                System.out.println("Invalid selection. Please enter a number between 1 and " + accountList.size() + ", or 'q' to quit:");
+            } else {
+                return accountList.get(input - 1).getAccount_id();
+            }
+        } catch (NumberFormatException exception){
+            System.out.println("Invalid input. Please enter a valid option");
+        } catch (RuntimeException exception){
+            System.out.println(exception.getMessage());
+        }
+        return 0;
     }
 
     private void getAllUsers(){

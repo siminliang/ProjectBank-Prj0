@@ -3,6 +3,8 @@ package com.revature.service;
 import com.revature.entity.Account;
 import com.revature.entity.AccountType;
 import com.revature.entity.User;
+import com.revature.exception.InvalidNewUserCredentials;
+import com.revature.exception.InvalidSelection;
 import com.revature.repository.AccountDAO;
 
 import java.util.List;
@@ -15,18 +17,24 @@ public class AccountServices {
     }
 
     public List<Account> getAccountSummary(User user){
-        List<Account> accountList = accountDAO.getAllAccountsForUser(user);
-        for(Account account : accountList){
-            System.out.println(account);
-        }
-        return accountList;
+        return accountDAO.getAllAccountsForUser(user);
     }
 
     public Account createAccount(AccountType accountType, User user){
         if(user != null){
-            return accountDAO.createAccount(accountType, user);
+            Account account = accountDAO.createAccount(accountType,user);
+            System.out.println("Account Created! \n" + account.toString());
+            return account;
         }
         throw new RuntimeException("No User Logged in");
+    }
+
+    public void deleteAccount(Account account){
+        if(account != null) {
+            accountDAO.deleteAccountById(account.getAccount_id());
+            System.out.println("Account Successfully Deleted!");
+        }else
+            throw new InvalidSelection("No such account.");
     }
 
     public boolean validBalance(double balance){

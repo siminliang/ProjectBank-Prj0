@@ -10,6 +10,8 @@ public interface AccountDAO {
     Account createAccount(AccountType accountType, User user);
     Account createAccount(AccountType accountType, User user, double balance);
     List<Account> getAllAccountsForUser(User user);
-    double getBalance();
-    void deleteAccount();
+    double getBalance(Account account);
+    void deleteAccountById(int account_id);
+    Account updateAccountBalance(Account account, double newBalance);
+
 }

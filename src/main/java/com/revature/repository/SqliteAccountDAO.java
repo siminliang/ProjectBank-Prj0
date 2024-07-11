@@ -79,7 +79,7 @@ public class SqliteAccountDAO implements AccountDAO{
                          "JOIN user_account_joint uaj ON b.account_id = uaj.account_id " +
                          "WHERE uaj.user_id = ?";
              */
-            String sql = "SELECT b.account_type, b.balance FROM bank b " +
+            String sql = "SELECT b.account_id, b.account_type, b.balance FROM bank b " +
                          "JOIN user_account_joint uaj ON b.account_id = uaj.account_id " +
                          "JOIN users u ON u.user_id = uaj.user_id " +
                          "WHERE u.username = ? AND u.password = ?";
@@ -89,9 +89,11 @@ public class SqliteAccountDAO implements AccountDAO{
             preparedStatement.setString(2, user.getPassword());
             ResultSet rs = preparedStatement.executeQuery();
             while(rs.next()){
-                String accountType = rs.getString(1);
-                double balance = rs.getDouble(2);
+                int account_id = rs.getInt("account_id");
+                String accountType = rs.getString("account_type");
+                double balance = rs.getDouble("balance");
                 Account account = new Account(accountType, user, balance);
+                account.setAccount_id(account_id);
                 accountList.add(account);
             }
         }catch (SQLException e){
@@ -102,12 +104,52 @@ public class SqliteAccountDAO implements AccountDAO{
     }
 
     @Override
-    public double getBalance() {
-        return 0;
+    public double getBalance(Account account) {
+        try(Connection connection = DataBaseConnector.createConnection()){
+            String sql = "SELECT balance FROM bank WHERE account_id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, account.getAccount_id());
+            ResultSet rs = preparedStatement.executeQuery();
+            if(rs.next()){
+                return rs.getDouble("balance");
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return -1;
     }
 
     @Override
-    public void deleteAccount() {
+    public void deleteAccountById(int account_id) {
+        try(Connection connection = DataBaseConnector.createConnection()){
+            String sql = "DELETE FROM bank WHERE account_id = ?";
 
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, account_id);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException exception){
+            throw new RuntimeException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public Account updateAccountBalance(Account account, double newBalance) {
+        try(Connection connection = DataBaseConnector.createConnection()){
+            String sql = "UPDATE bank SET balance = ? WHERE account_id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setDouble(1, newBalance);
+            preparedStatement.setInt(2, account.getAccount_id());
+
+            int result = preparedStatement.executeUpdate();
+            if(result == 1){
+                account.setBalance(newBalance);
+                return account;
+            }
+        } catch (SQLException exception){
+            throw new RuntimeException(exception.getMessage());
+        }
+        return null;
     }
 }
