@@ -20,6 +20,8 @@ public class SqliteUserDAO implements UserDAO{
             preparedStatement.setString(2, newUserCredentials.getPassword());
             int result = preparedStatement.executeUpdate();
             if(result == 1){
+                int user_id = preparedStatement.getGeneratedKeys().getInt(1);
+                newUserCredentials.setUserId(user_id);
                 return newUserCredentials;
             }
 
@@ -46,6 +48,7 @@ public class SqliteUserDAO implements UserDAO{
                 //getString(column number) or (column name)
                 userRecord.setUsername(resultSet.getString("username"));
                 userRecord.setPassword(resultSet.getString("password"));
+                userRecord.setUserId(resultSet.getInt("user_id"));
                 users.add(userRecord);
             }
             return users;

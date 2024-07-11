@@ -33,11 +33,11 @@ public class DataBaseScriptRunner {
                     for(String line : lines){}
                  */
                 String sql = sqlBuilder.toString();
-                // we can now split the sql into individual statments
+                // we can now split the sql into individual statements
                 // the \\R character is a more robust newline indicator
-                // this means new lines, carriage return, and one ore two other
+                // this means new lines, carriage return, and one or two other
                 // characters are referenced by it
-                String[] statements = sql.split(";");
+                String[] statements = sql.split(";\\R");
                 for(String statement : statements) {
                     Statement stmt = connection.createStatement();
                     stmt.executeUpdate(statement);
@@ -45,7 +45,7 @@ public class DataBaseScriptRunner {
                 connection.commit();
 
             }
-        // need to catch potential SQL and IO Exceptions    }
+        // need to catch potential SQL and IO Exceptions
         } catch (SQLException | IOException exception){
             System.out.println(exception.getMessage());
         }

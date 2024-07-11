@@ -1,21 +1,34 @@
 package com.revature.controller;
 
+import com.revature.entity.Account;
+import com.revature.entity.AccountType;
 import com.revature.entity.User;
 import com.revature.exception.InvalidNewUserCredentials;
 import com.revature.exception.LoginFail;
+import com.revature.repository.AccountDAO;
+import com.revature.repository.SqliteAccountDAO;
+import com.revature.repository.SqliteUserDAO;
+import com.revature.repository.UserDAO;
+import com.revature.service.AccountServices;
 import com.revature.service.UserService;
 import com.revature.service.UserStatus;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class UserController {
+
+    private UserStatus userStatus;
+    private AccountServices accountServices;
     private Scanner scanner;
     private UserService userService;
-    private UserStatus userStatus;
 
-    public UserController(Scanner scanner, UserService userService, UserStatus userStatus){
+    public UserController(Scanner scanner, UserStatus userStatus){
+        UserDAO userDAO = new SqliteUserDAO();
+        AccountDAO accountDAO = new SqliteAccountDAO();
+        this.userService = new UserService(userDAO);
+        this.accountServices = new AccountServices(accountDAO);
         this.scanner = scanner;
-        this.userService = userService;
         this.userStatus = userStatus;
     }
 
@@ -32,17 +45,21 @@ public class UserController {
                     registerNewUser();
                     break;
                 case "2":
-                    userStatus.setUser(login());
+                    login();
                     break;
                 case "q":
-                    userStatus.setUser(null);
-                    userStatus.setContinueLoop(false);
+                    quit();
                     break;
+                case "viewUsers":
+                    getAllUsers();
+
             }
         } catch(LoginFail | InvalidNewUserCredentials exception){
             System.out.println(exception.getMessage());
         }
     }
+
+
 
     public void promptUserOptions(){
         System.out.println("What would you like to do today?");
@@ -57,8 +74,10 @@ public class UserController {
             String input = scanner.nextLine();
             switch (input){
                 case "1":
+                    printSummary();
                     break;
                 case "2":
+                    createAccount();
                     break;
                 case "3":
                     break;
@@ -104,7 +123,54 @@ public class UserController {
         }
     }
 
-    public User login(){
-        return userService.checkLoginCredentials(getCredentials());
+    public void login(){
+        userStatus.setUser(userService.checkLoginCredentials(getCredentials()));
+    }
+
+    private List<Account> printSummary(){
+        List<Account> listOfAccount = accountServices.getAccountSummary(userStatus.getUser());
+        System.out.println();
+        return listOfAccount;
+    }
+
+    private void withdrawFromAccount(){
+        //print list accounts from user
+        //get account_id from user input
+
+    }
+
+    private void createAccount(){
+        System.out.println("What type of Account would you like to create?");
+        System.out.println("1. CHECKING");
+        System.out.println("2. SAVING");
+        System.out.println("4. JOINT");
+        try{
+            String input = scanner.nextLine();
+            switch (input){
+                case "1":
+                    accountServices.createAccount(AccountType.CHECKING, userStatus.getUser());
+                    break;
+                case "2":
+                    accountServices.createAccount(AccountType.SAVING, userStatus.getUser());
+                    break;
+                case "q":
+                    break;
+            }
+        }catch (RuntimeException exception){
+            System.out.println(exception.getMessage());
+        }
+    }
+
+    private void withdraw(){
+
+    }
+
+    private void getAllUsers(){
+        userService.getAllUsers();
+    }
+
+    private void quit(){
+        userStatus.setUser(null);
+        userStatus.setContinueLoop(false);
     }
 }

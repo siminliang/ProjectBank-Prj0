@@ -24,8 +24,6 @@ public class UserService {
                 return userDAO.createUser(user);
             }
         }
-
-        // TODO: handle and makes this custom exception
         throw new InvalidNewUserCredentials("Invalid new username or password, makes sure username and password < 30 characters, and username is unique");
     }
 
@@ -52,10 +50,19 @@ public class UserService {
             boolean usernameMatches = user.getUsername().equals(credentials.getUsername());
             boolean passwordMatches = user.getPassword().equals(credentials.getPassword());
 
-            if(usernameMatches && passwordMatches)
+            if(usernameMatches && passwordMatches) {
+                credentials.setUserId(userDAO.getUserId(credentials));
                 return credentials;
+            }
         }
 
         throw new LoginFail("Credentials are invalid: please try again");
+    }
+
+    public void getAllUsers(){
+        List<User> userList = userDAO.getAllUsers();
+        for(User user : userList){
+            System.out.println(user);
+        }
     }
 }

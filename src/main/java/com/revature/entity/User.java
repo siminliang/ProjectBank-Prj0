@@ -6,6 +6,7 @@ import java.util.Objects;
 public class User implements Serializable {
     private String username;
     private String password;
+    private int user_id;
 
     public User(){}
     public User(String username, String password){
@@ -29,6 +30,14 @@ public class User implements Serializable {
         this.password = password;
     }
 
+    public int getUserId() {
+        return user_id;
+    }
+
+    public void setUserId(int user_id) {
+        this.user_id = user_id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -47,6 +56,7 @@ public class User implements Serializable {
         return "User{" +
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", user_id=" + user_id +
                 '}';
     }
 }
