@@ -159,9 +159,10 @@ public class UserController {
         }
     }
 
-    //TODO: handel invalid input
     private void closeAccount(){
-
+        Account account = promptAccountSelection();
+        if(account != null)
+            accountServices.deleteAccount(account);
     }
 
     private void withdraw(){
@@ -172,7 +173,7 @@ public class UserController {
 
     }
 
-    private int promptAccountSelection(){
+    private Account promptAccountSelection(){
         List<Account> accountList = accountServices.getAccountSummary(userStatus.getUser());
         System.out.println("Which account would you like to close");
         for(int i = 0; i < accountList.size(); i++) {
@@ -182,21 +183,22 @@ public class UserController {
         try {
             String str = scanner.nextLine();
             if(str.equals("q")){
-                return 0;
+                return null;
             }
 
             int input = Integer.parseInt(str);
             if (input < 1 || input > accountList.size()) {
                 System.out.println("Invalid selection. Please enter a number between 1 and " + accountList.size() + ", or 'q' to quit:");
+                promptAccountSelection();
             } else {
-                return accountList.get(input - 1).getAccount_id();
+                return accountList.get(input - 1);
             }
         } catch (NumberFormatException exception){
             System.out.println("Invalid input. Please enter a valid option");
         } catch (RuntimeException exception){
             System.out.println(exception.getMessage());
         }
-        return 0;
+        return null;
     }
 
     private void getAllUsers(){

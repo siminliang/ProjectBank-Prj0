@@ -33,7 +33,9 @@ public class SqliteAccountDAO implements AccountDAO{
 
                 result = preparedStatement.executeUpdate();
                 if(result == 1){
-                    return new Account(accountType.toString(), user);
+                    Account newAccount = new Account(accountType.toString(), user);
+                    newAccount.setAccount_id(account_id);
+                    return newAccount;
                 }
             }
         } catch (SQLException e) {
@@ -60,7 +62,9 @@ public class SqliteAccountDAO implements AccountDAO{
 
                 result = preparedStatement.executeUpdate();
                 if(result == 1){
-                    return new Account(accountType.toString(), user, balance);
+                    Account newAccount = new Account(accountType.toString(), user, balance);
+                    System.out.println("account id" + account_id);
+                    return newAccount;
                 }
             }
         } catch (SQLException e) {
