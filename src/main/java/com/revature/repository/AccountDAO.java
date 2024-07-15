@@ -13,5 +13,5 @@ public interface AccountDAO {
     double getBalance(Account account);
     void deleteAccountById(int account_id);
     Account updateAccountBalance(Account account, double newBalance);
-
+    void jointAccounts(int account_id, int user_id);
 }

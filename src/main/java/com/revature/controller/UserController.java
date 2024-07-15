@@ -19,10 +19,10 @@ import java.util.Scanner;
 
 public class UserController {
 
-    private UserStatus userStatus;
-    private AccountServices accountServices;
-    private Scanner scanner;
-    private UserService userService;
+    private final UserStatus userStatus;
+    private final AccountServices accountServices;
+    private final Scanner scanner;
+    private final UserService userService;
 
     public UserController(Scanner scanner, UserStatus userStatus){
         UserDAO userDAO = new SqliteUserDAO();
@@ -95,7 +95,7 @@ public class UserController {
                     pause();
                     break;
                 case "5":
-                    //deposite();
+                    deposit();
                     break;
                 case "q":
                     userStatus.setUser(null);
@@ -153,7 +153,8 @@ public class UserController {
         System.out.println("What type of Account would you like to create?");
         System.out.println("1. CHECKING");
         System.out.println("2. SAVING");
-        System.out.println("4. JOINT");
+        System.out.println("3. JOINT");
+        System.out.println("4. VIEW ACCOUNT BENEFITS");
         System.out.println("q. QUIT");
         try{
             String input = scanner.nextLine();
@@ -165,7 +166,10 @@ public class UserController {
                     accountServices.createAccount(AccountType.SAVING, userStatus.getUser());
                     break;
                 case "3":
-                    //viewBenefits();
+                    jointAccount();
+                    break;
+                case "4":
+                    viewBenefits();
                     break;
                 case "q":
                     break;
@@ -188,7 +192,13 @@ public class UserController {
         Account account = selectAccount();
         try{
             if(account != null) {
-                System.out.print("Enter the amount you want to withdraw: ");
+                if("SAVING".equals(account.getAccountType())){
+                    System.out.println("Withdrawing from a savings account incurs a heavy penalty fee are you sure you want to proceed Y/N: ");
+                    String yn = scanner.nextLine();
+                    if(!yn.equals("y"))
+                        return;
+                }
+                System.out.print("Enter the amount you want to withdraw: $");
                 double input = getTransactionAmount();
                 account = accountServices.withdraw(account, input);
             }
@@ -196,7 +206,7 @@ public class UserController {
                 System.out.println("Exiting withdraw... \n");
             }
             if(account != null)
-                System.out.println("Your new account balance is: " + account.getBalance() + "\n");
+                System.out.println("Your new account balance is: " + account.getBalanceAsString() + "\n");
         }catch (InvalidBalanceException exception){
             System.out.println();
             withdraw();
@@ -205,6 +215,20 @@ public class UserController {
 
     private void deposit(){
         Account account = selectAccount();
+        try{
+            if(account != null) {
+                System.out.print("Enter the amount you want to deposit: $");
+                double input = getTransactionAmount();
+                account = accountServices.deposit(account, input);
+            } else {
+                System.out.println("Exiting deposit... \n");
+            }
+            if(account != null)
+                System.out.println("Your new account balance is: " + account.getBalanceAsString() + "\n");
+        }catch (RuntimeException exception){
+            System.out.println(exception.getMessage());
+            deposit();;
+        }
     }
 
     private double getTransactionAmount(){
@@ -261,8 +285,35 @@ public class UserController {
         userStatus.setContinueLoop(false);
     }
 
+    private void viewBenefits(){
+        String checkingBenefits = "CHECKING ACCOUNT: \n -No benefits, deposit and withdraw has no bonuses or penalties. \n\n";
+        String savingBenefits = "SAVING ACCOUNT: \n -For every deposit over $1000 get a $5 bonus. \n" +
+                " -Get a $500 penalty fee for every withdraw. \n\n";
+        String jointAccount = "JOINT ACCOUNT: \n -Add a user to one of your existing accounts. \n";
+        System.out.println(checkingBenefits + savingBenefits + jointAccount);
+    }
     private void pause(){
-        System.out.println("Press any key to continue");
+        String green = "\u001B[32m";
+        String reset = "\u001B[0m";
+        System.out.println(green + "Press any key to continue" + reset);
         scanner.nextLine();
+        System.out.println("\n\n\n\n\n");
+    }
+
+    private void jointAccount(){
+        System.out.println("Alright lets start adding a user to one of your accounts");
+        System.out.println("Please select an account in which you want to add a new user to");
+        Account accountToBeJoined = this.selectAccount();
+        if(accountToBeJoined != null){
+            System.out.println("Please enter credentials for an existing user");
+            User newUser = userService.checkLoginCredentials(getCredentials());
+            if(newUser != null){
+                accountServices.createJointAccount(accountToBeJoined, newUser);
+
+            } else
+                System.out.println("Invalid user credential provided, makes sure they are a registered user.");
+        } else {
+            System.out.println("Exiting account linking...");
+        }
     }
 }

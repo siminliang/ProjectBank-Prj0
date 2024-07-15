@@ -1,10 +1,14 @@
 package com.revature.entity;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Locale;
 
 public class Account implements Serializable {
     private String accountType;
     private User owner;
+    private List<User> users;
     private double balance;
     private int account_id;
 
@@ -51,12 +55,18 @@ public class Account implements Serializable {
         this.account_id = account_id;
     }
 
+    public String getBalanceAsString(){
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
+        return currencyFormatter.format(getBalance());
+    }
+
     @Override
     public String toString() {
-        return "Account{" +
+        String output = "Account{" +
                 "account_id=" + account_id +
                 ", accountType='" + accountType + '\'' +
-                ", balance=" + balance +
+                ", balance=" + getBalanceAsString();
+        return  output +
                 '}';
     }
 }

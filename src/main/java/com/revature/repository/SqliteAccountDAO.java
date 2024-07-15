@@ -78,20 +78,15 @@ public class SqliteAccountDAO implements AccountDAO{
   //public List<Account> getAllAccountsForUser(int user_id){
         List<Account> accountList = new ArrayList<>();
         try(Connection connection = DataBaseConnector.createConnection()){
-            /*
-            String sql = "SELECT b.account_type, b.balance FROM bank b " +
-                         "JOIN user_account_joint uaj ON b.account_id = uaj.account_id " +
-                         "WHERE uaj.user_id = ?";
-             */
             String sql = "SELECT b.account_id, b.account_type, b.balance FROM bank b " +
                          "JOIN user_account_joint uaj ON b.account_id = uaj.account_id " +
                          "JOIN users u ON u.user_id = uaj.user_id " +
                          "WHERE u.username = ? AND u.password = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-          //preparedStatement.setInt(1, user_id);
             preparedStatement.setString(1, user.getUsername());
             preparedStatement.setString(2, user.getPassword());
             ResultSet rs = preparedStatement.executeQuery();
+
             while(rs.next()){
                 int account_id = rs.getInt("account_id");
                 String accountType = rs.getString("account_type");
@@ -155,6 +150,19 @@ public class SqliteAccountDAO implements AccountDAO{
             throw new RuntimeException(exception.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public void jointAccounts(int account_id, int user_id) {
+        try(Connection connection = DataBaseConnector.createConnection()){
+            String sql = "INSERT INTO user_account_joint (account_id, user_id)VALUES (?,?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, account_id);
+            preparedStatement.setInt(2, user_id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException exception){
+            throw new RuntimeException(exception.getMessage());
+        }
     }
 
 
