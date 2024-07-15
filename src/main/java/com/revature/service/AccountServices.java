@@ -3,6 +3,7 @@ package com.revature.service;
 import com.revature.entity.Account;
 import com.revature.entity.AccountType;
 import com.revature.entity.User;
+import com.revature.exception.InvalidBalanceException;
 import com.revature.exception.InvalidSelection;
 import com.revature.repository.AccountDAO;
 
@@ -40,21 +41,22 @@ public class AccountServices {
         return balance >= 0;
     }
 
-    //savings account withdraw under 500 gets addition
+    //savings account withdraws gets 5 dollar charge
     public Account withdraw(Account account, double amount){
         double newBalance = account.getBalance() - amount;
         if("CHECKING".equals(account.getAccountType())){
             if(validBalance(newBalance))
-                accountDAO.updateAccountBalance(account, newBalance);
+                account = accountDAO.updateAccountBalance(account, newBalance);
             else{
                 System.out.println("Unable to withdraw, balance cannot be lower than 0");
                 System.out.println("Current account balance: " + account.getBalance());
+                throw new InvalidBalanceException("Invalid end balance");
             }
         }else if("SAVING".equals(account.getAccountType())){
             //every withdraw from savings account has a 5 dollar fee
             newBalance = newBalance - 5;
             if(validBalance(newBalance)){
-                accountDAO.updateAccountBalance(account, newBalance);
+                account = accountDAO.updateAccountBalance(account, newBalance);
             }else{
                 System.out.println("Unable to withdraw, balance cannot be lower than 0");
                 System.out.println("Current account balance: " + account.getBalance());

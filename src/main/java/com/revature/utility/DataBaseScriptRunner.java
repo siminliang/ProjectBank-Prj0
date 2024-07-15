@@ -27,11 +27,6 @@ public class DataBaseScriptRunner {
                 //this line loops through our steam and appends each line of the file
                 //to the StringBuilder object
                 lines.forEach(sqlBuilder::append);
-                //lines.forEach(line -> sqlBuilder.append(line));
-                /*
-                    similar to
-                    for(String line : lines){}
-                 */
                 String sql = sqlBuilder.toString();
                 // we can now split the sql into individual statements
                 // the \\R character is a more robust newline indicator

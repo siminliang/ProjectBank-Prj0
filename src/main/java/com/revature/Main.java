@@ -25,8 +25,6 @@ public class Main {
                 if(userStatus.getUser() != null) {
                     System.out.println("Welcome to Bank! User: " + userStatus.getUser().getUsername() + "!");
                     userController.promptUserOptions();
-                    System.out.println("Press any key to continue");
-                    scanner.nextLine();
                 }
             }
         }

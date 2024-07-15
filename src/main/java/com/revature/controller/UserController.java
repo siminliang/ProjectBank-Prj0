@@ -3,6 +3,7 @@ package com.revature.controller;
 import com.revature.entity.Account;
 import com.revature.entity.AccountType;
 import com.revature.entity.User;
+import com.revature.exception.InvalidBalanceException;
 import com.revature.exception.InvalidNewUserCredentials;
 import com.revature.exception.InvalidSelection;
 import com.revature.exception.LoginFail;
@@ -44,9 +45,11 @@ public class UserController {
             switch (userInput){
                 case "1":
                     registerNewUser();
+                    pause();
                     break;
                 case "2":
                     login();
+                    pause();
                     break;
                 case "q":
                     quit();
@@ -74,15 +77,19 @@ public class UserController {
             switch (input){
                 case "1":
                     printSummary();
+                    pause();
                     break;
                 case "2":
                     createAccount();
+                    pause();
                     break;
                 case "3":
                     closeAccount();
+                    pause();
                     break;
                 case "4":
                     withdraw();
+                    pause();
                     break;
                 case "5":
                     //deposite();
@@ -134,6 +141,8 @@ public class UserController {
         for(Account account : accountList){
             System.out.println(account);
         }
+        if(accountList.isEmpty())
+            System.out.println("No account associated with this user found");
         System.out.println();
     }
 
@@ -154,28 +163,59 @@ public class UserController {
                 case "q":
                     break;
             }
-        }catch (RuntimeException exception){
+        }catch (RuntimeException exception) {
             System.out.println(exception.getMessage());
         }
     }
 
     private void closeAccount(){
-        Account account = promptAccountSelection();
+        Account account = selectAccount();
         if(account != null)
             accountServices.deleteAccount(account);
     }
 
     private void withdraw(){
-
+        Account account = selectAccount();
+        System.out.print("Enter the amount you want to withdraw: ");
+        double input = getTransactionAmount();
+        try{
+            if(account != null) {
+                account = accountServices.withdraw(account, input);
+            }
+            else{
+                System.out.println("Invalid account selected please try again");
+                withdraw();
+            }
+            System.out.println("Your new account balance is: " + account.getBalance());
+        }catch (InvalidBalanceException exception){
+            System.out.println();
+            withdraw();
+        }
     }
 
     private void deposit(){
-
+        Account account = selectAccount();
     }
 
-    private Account promptAccountSelection(){
+    private double getTransactionAmount(){
+        String input = scanner.nextLine();
+        double output = -1;
+        try {
+            output = Double.parseDouble(input);
+        } catch (NumberFormatException exception){
+            System.out.println(exception.getMessage() + " Please try again.");
+            getTransactionAmount();
+        }
+        if(output < 0) {
+            System.out.println("Invalid ");
+            getTransactionAmount();
+        }
+        return output;
+    }
+
+    private Account selectAccount(){
         List<Account> accountList = accountServices.getAccountSummary(userStatus.getUser());
-        System.out.println("Which account would you like to close");
+        System.out.println("Please select an account");
         for(int i = 0; i < accountList.size(); i++) {
             System.out.println((i+1) + ". " + accountList.get(i));
         }
@@ -189,7 +229,7 @@ public class UserController {
             int input = Integer.parseInt(str);
             if (input < 1 || input > accountList.size()) {
                 System.out.println("Invalid selection. Please enter a number between 1 and " + accountList.size() + ", or 'q' to quit:");
-                promptAccountSelection();
+                selectAccount();
             } else {
                 return accountList.get(input - 1);
             }
@@ -208,5 +248,10 @@ public class UserController {
     private void quit(){
         userStatus.setUser(null);
         userStatus.setContinueLoop(false);
+    }
+
+    private void pause(){
+        System.out.println("Press any key to continue");
+        scanner.nextLine();
     }
 }
