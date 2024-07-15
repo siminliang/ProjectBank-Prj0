@@ -52,6 +52,7 @@ public class UserService {
 
             if(usernameMatches && passwordMatches) {
                 credentials.setUserId(userDAO.getUserId(credentials));
+                System.out.println("Login Success!\n");
                 return credentials;
             }
         }

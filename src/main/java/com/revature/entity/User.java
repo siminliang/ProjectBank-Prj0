@@ -53,10 +53,11 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
+        StringBuilder printablePassword = new StringBuilder(password.charAt(0) + "*".repeat(password.length()-1));
         return "User{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", user_id=" + user_id +
+                "user_id" + user_id +
+                ",username='" + username + '\'' +
+                ", password='" + printablePassword + '\'' +
                 '}';
     }
 }

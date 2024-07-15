@@ -54,8 +54,8 @@ public class Account implements Serializable {
     @Override
     public String toString() {
         return "Account{" +
-                "accountType='" + accountType + '\'' +
-                ", account_id=" + account_id +
+                "account_id=" + account_id +
+                ", accountType='" + accountType + '\'' +
                 ", balance=" + balance +
                 '}';
     }

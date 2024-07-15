@@ -5,7 +5,6 @@ import com.revature.entity.AccountType;
 import com.revature.entity.User;
 import com.revature.exception.InvalidBalanceException;
 import com.revature.exception.InvalidNewUserCredentials;
-import com.revature.exception.InvalidSelection;
 import com.revature.exception.LoginFail;
 import com.revature.repository.AccountDAO;
 import com.revature.repository.SqliteAccountDAO;
@@ -34,7 +33,7 @@ public class UserController {
         this.userStatus = userStatus;
     }
 
-    public void promptForServices(){
+    public void promptForCredentials(){
         System.out.println("What would you like to do today?");
         System.out.println("1. Register");
         System.out.println("2. Login");
@@ -56,14 +55,18 @@ public class UserController {
                     break;
                 case "viewUsers":
                     getAllUsers();
-
+                    break;
+                default:
+                    System.out.println("Invalid option selected, please try again");
+                    promptForCredentials();
+                    break;
             }
         } catch(LoginFail | InvalidNewUserCredentials exception){
             System.out.println(exception.getMessage());
         }
     }
 
-    public void promptUserOptions(){
+    public void promptAccountOptions(){
         System.out.println("What would you like to do today?");
         System.out.println("1. Account Summary");
         System.out.println("2. Open Account");
@@ -151,6 +154,7 @@ public class UserController {
         System.out.println("1. CHECKING");
         System.out.println("2. SAVING");
         System.out.println("4. JOINT");
+        System.out.println("q. QUIT");
         try{
             String input = scanner.nextLine();
             switch (input){
@@ -160,8 +164,14 @@ public class UserController {
                 case "2":
                     accountServices.createAccount(AccountType.SAVING, userStatus.getUser());
                     break;
+                case "3":
+                    //viewBenefits();
+                    break;
                 case "q":
                     break;
+                default:
+                    System.out.println("Invalid Selection, please retry!");
+                    createAccount();
             }
         }catch (RuntimeException exception) {
             System.out.println(exception.getMessage());
@@ -176,17 +186,17 @@ public class UserController {
 
     private void withdraw(){
         Account account = selectAccount();
-        System.out.print("Enter the amount you want to withdraw: ");
-        double input = getTransactionAmount();
         try{
             if(account != null) {
+                System.out.print("Enter the amount you want to withdraw: ");
+                double input = getTransactionAmount();
                 account = accountServices.withdraw(account, input);
             }
             else{
-                System.out.println("Invalid account selected please try again");
-                withdraw();
+                System.out.println("Exiting withdraw... \n");
             }
-            System.out.println("Your new account balance is: " + account.getBalance());
+            if(account != null)
+                System.out.println("Your new account balance is: " + account.getBalance() + "\n");
         }catch (InvalidBalanceException exception){
             System.out.println();
             withdraw();
@@ -203,19 +213,19 @@ public class UserController {
         try {
             output = Double.parseDouble(input);
         } catch (NumberFormatException exception){
-            System.out.println(exception.getMessage() + " Please try again.");
-            getTransactionAmount();
+            System.out.println("Invalid transaction amount, please try again");
+            return getTransactionAmount();
         }
         if(output < 0) {
-            System.out.println("Invalid ");
-            getTransactionAmount();
+            System.out.println("Invalid transaction amount, please try again");
+            return getTransactionAmount();
         }
         return output;
     }
 
     private Account selectAccount(){
         List<Account> accountList = accountServices.getAccountSummary(userStatus.getUser());
-        System.out.println("Please select an account");
+        System.out.println("\nPlease select an account");
         for(int i = 0; i < accountList.size(); i++) {
             System.out.println((i+1) + ". " + accountList.get(i));
         }
@@ -229,16 +239,17 @@ public class UserController {
             int input = Integer.parseInt(str);
             if (input < 1 || input > accountList.size()) {
                 System.out.println("Invalid selection. Please enter a number between 1 and " + accountList.size() + ", or 'q' to quit:");
-                selectAccount();
+                return selectAccount();
             } else {
                 return accountList.get(input - 1);
             }
         } catch (NumberFormatException exception){
             System.out.println("Invalid input. Please enter a valid option");
+            return selectAccount();
         } catch (RuntimeException exception){
             System.out.println(exception.getMessage());
+            return selectAccount();
         }
-        return null;
     }
 
     private void getAllUsers(){
