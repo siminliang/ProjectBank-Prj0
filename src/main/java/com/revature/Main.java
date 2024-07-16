@@ -14,7 +14,6 @@ public class Main {
             //service layer initialized inside controller layer
             UserController userController = new UserController(scanner, userStatus);
 
-            UserStatus.welcome();
             while(userStatus.getContinueLoop()){
                 if(userStatus.getUser() == null)
                     userController.promptForCredentials();

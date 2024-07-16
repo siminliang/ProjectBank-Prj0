@@ -34,7 +34,7 @@ INSERT INTO user_account_joint (user_id, account_id) VALUES (2,1);
 INSERT INTO user_account_joint (user_id, account_id) VALUES (2,2);
 
 CREATE TRIGGER delete_accound_with_user
-BEFORE DELETE ON users
+	BEFORE DELETE ON users
 	FOR EACH ROW
 	BEGIN
 		DELETE FROM bank
@@ -45,7 +45,7 @@ BEFORE DELETE ON users
 
 
 CREATE TRIGGER delete_bank_account
-BEFORE DELETE ON bank
+	BEFORE DELETE ON bank
 	FOR EACH ROW
 	BEGIN
 		DELETE FROM user_account_joint
