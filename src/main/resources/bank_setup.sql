@@ -43,7 +43,10 @@ BEFORE DELETE ON users
 	END;
 
 
-SELECT * FROM bank b
-	JOIN user_account_joint uaj ON b.account_id = uaj.account_id
-	JOIN users u ON u.user_id = uaj.user_id
-	WHERE u.username = 'admin2' AND u.password = 1234;
+CREATE TRIGGER delete_bank_account
+BEFORE DELETE ON bank
+	FOR EACH ROW
+	BEGIN
+		DELETE FROM user_account_joint
+		WHERE account_id = OLD.account_id;
+	END;
