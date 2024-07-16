@@ -87,7 +87,8 @@ public class UserController {
 
     //register requirement
     private void registerNewUser(){
-
+        String green = "\u001B[32m";
+        String reset = "\u001B[0m";
         User newUserCredentials = getCredentials();
         try {
             User newUser = userService.createNewUser(newUserCredentials);
@@ -95,7 +96,7 @@ public class UserController {
             System.out.println();
         }catch (InvalidNewUserCredentials exception){
             System.out.println(exception.getMessage());
-            System.out.println("Press any key to continue or 'q' to quit registration");
+            System.out.println(green + "Press any key to continue or 'q' to quit registration" + reset);
             String input = scanner.nextLine();
             if(input.equals("q")) {
                 System.out.println("Leaving Registrations... \n");
@@ -179,7 +180,7 @@ public class UserController {
         System.out.println("1. CHECKING");
         System.out.println("2. SAVING");
         System.out.println("3. JOINT");
-        System.out.println("4. VIEW ACCOUNT BENEFITS");
+        System.out.println("4. VIEW SELECTION DETAILS");
         System.out.println("q. QUIT");
         try{
             String input = scanner.nextLine();

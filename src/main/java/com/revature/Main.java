@@ -14,12 +14,13 @@ public class Main {
             //service layer initialized inside controller layer
             UserController userController = new UserController(scanner, userStatus);
 
+            UserStatus.welcome();
             while(userStatus.getContinueLoop()){
                 if(userStatus.getUser() == null)
                     userController.promptForCredentials();
 
                 if(userStatus.getUser() != null) {
-                    System.out.println("Welcome to Bank! User: " + userStatus.getUser().getUsername() + "!");
+                    System.out.println("Welcome to Imaginary Bank! User: " + userStatus.getUser().getUsername() + "!");
                     userController.promptAccountOptions();
                 }
             }
