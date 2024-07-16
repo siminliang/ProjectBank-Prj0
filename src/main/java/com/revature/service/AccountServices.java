@@ -41,10 +41,6 @@ public class AccountServices {
             throw new InvalidSelection("No such account.");
     }
 
-    private boolean validBalance(double balance){
-        return balance >= 0;
-    }
-
     public Account withdraw(Account account, double amount){
         double newBalance = account.getBalance() - amount;
         double initBalance = account.getBalance();
@@ -101,6 +97,11 @@ public class AccountServices {
         int account_id = account.getAccount_id();
         int user_id = newUser.getUserId();
         accountDAO.jointAccounts(account_id, user_id);
+    }
+
+    //helper method, for readability
+    private boolean validBalance(double balance){
+        return balance >= 0;
     }
 }
 

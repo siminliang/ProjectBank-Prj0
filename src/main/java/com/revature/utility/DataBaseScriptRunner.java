@@ -24,14 +24,10 @@ public class DataBaseScriptRunner {
 
                 connection.setAutoCommit(false);
                 StringBuilder sqlBuilder =  new StringBuilder();
-                //this line loops through our steam and appends each line of the file
-                //to the StringBuilder object
+
                 lines.forEach(sqlBuilder::append);
                 String sql = sqlBuilder.toString();
-                // we can now split the sql into individual statements
-                // the \\R character is a more robust newline indicator
-                // this means new lines, carriage return, and one or two other
-                // characters are referenced by it
+
                 String[] statements = sql.split(";\\R");
                 for(String statement : statements) {
                     Statement stmt = connection.createStatement();

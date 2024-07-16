@@ -10,6 +10,8 @@ public class Main {
 
         try(Scanner scanner = new Scanner(System.in)){
             UserStatus userStatus = new UserStatus();
+            //main class only needs access to Controller layer
+            //service layer initialized inside controller layer
             UserController userController = new UserController(scanner, userStatus);
 
             while(userStatus.getContinueLoop()){

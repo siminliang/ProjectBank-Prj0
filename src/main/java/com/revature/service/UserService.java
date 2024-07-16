@@ -16,33 +16,13 @@ public class UserService {
         this.userDAO = userDAO;
     }
 
-    public User validateNewUserCredentials(User user){
-        //username and password less than 30 characters
-        //username cannot already exist
+    public User createNewUser(User user){
         if(validCredentialLength(user)){
             if(validNewUsername(user)){
                 return userDAO.createUser(user);
             }
         }
         throw new InvalidNewUserCredentials("Invalid new username or password, makes sure username and password < 30 characters, and username is unique");
-    }
-
-    private boolean validCredentialLength(User newUserCredential){
-        boolean validUsername = newUserCredential.getUsername().length() <= 30;
-        boolean validPassword = newUserCredential.getPassword().length() <= 30;
-        return validUsername && validPassword;
-    }
-
-    private boolean validNewUsername(User newUserCredential){
-        //check if username already exist in database
-        //needs access to userDAO;
-        List<User> users = userDAO.getAllUsers();
-        for(User user: users ){
-            if(newUserCredential.getUsername().equals(user.getUsername())){
-                return false;
-            }
-        }
-        return true;
     }
 
     public User checkLoginCredentials(User credentials){
@@ -60,10 +40,29 @@ public class UserService {
         throw new LoginFail("Credentials are invalid: please try again");
     }
 
+    //helper method for debugging
     public void getAllUsers(){
         List<User> userList = userDAO.getAllUsers();
         for(User user : userList){
             System.out.println(user);
         }
+    }
+
+    //helper methods for readability
+    private boolean validCredentialLength(User newUserCredential){
+        boolean validUsername = newUserCredential.getUsername().length() <= 30;
+        boolean validPassword = newUserCredential.getPassword().length() <= 30;
+        return validUsername && validPassword;
+    }
+    private boolean validNewUsername(User newUserCredential){
+        //check if username already exist in database
+        //needs access to userDAO;
+        List<User> users = userDAO.getAllUsers();
+        for(User user: users ){
+            if(newUserCredential.getUsername().equals(user.getUsername())){
+                return false;
+            }
+        }
+        return true;
     }
 }

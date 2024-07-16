@@ -33,10 +33,6 @@ public class SqliteUserDAO implements UserDAO{
 
     @Override
     public List<User> getAllUsers() {
-        //sql statement
-        //connection object
-        //need a list of users to return;
-
 
         String sql = "select * from users";
         try(Connection connection = DataBaseConnector.createConnection()){
@@ -53,8 +49,6 @@ public class SqliteUserDAO implements UserDAO{
             }
             return users;
         }catch (SQLException exception){
-            // SQLException is a checked exception, so we need to handle it here, throw a custom exception so we can
-            // handle sending the results back to the user in a more appropriate
             throw new UserSQLException(exception.getMessage());
         }
     }

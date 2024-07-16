@@ -6,6 +6,11 @@ public class UserStatus {
     private User user;
     private boolean continueLoop;
 
+    /*
+        class created for storing current logged-in user information
+        replacing the need to use control map for account management
+     */
+
     public UserStatus(){
         continueLoop = true;
     }

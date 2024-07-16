@@ -7,10 +7,8 @@ import com.revature.entity.User;
 import java.util.List;
 
 public interface AccountDAO {
-    Account createAccount(AccountType accountType, User user);
-    Account createAccount(AccountType accountType, User user, double balance);
     List<Account> getAllAccountsForUser(User user);
-    double getBalance(Account account);
+    Account createAccount(AccountType accountType, User user);
     void deleteAccountById(int account_id);
     Account updateAccountBalance(Account account, double newBalance);
     void jointAccounts(int account_id, int user_id);

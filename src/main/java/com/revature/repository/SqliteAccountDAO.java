@@ -5,7 +5,6 @@ import com.revature.entity.AccountType;
 import com.revature.entity.User;
 import com.revature.utility.DataBaseConnector;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,35 +44,6 @@ public class SqliteAccountDAO implements AccountDAO{
     }
 
     @Override
-    public Account createAccount(AccountType accountType, User user, double balance) {
-        try(Connection connection = DataBaseConnector.createConnection()){
-            String createAccountSql = "INSERT INTO bank (account_type, balance) VALUES (?, ?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(createAccountSql);
-            preparedStatement.setString(1, accountType.toString());
-            preparedStatement.setDouble(2, balance);
-            int result = preparedStatement.executeUpdate();
-            int account_id = preparedStatement.getGeneratedKeys().getInt("account_id");
-
-            if(result == 1){
-                String linkToUserSql = "INSERT INTO user_account_joint (user_id, account_id) VALUES (?,?)";
-                preparedStatement = connection.prepareStatement(linkToUserSql);
-                preparedStatement.setInt(1,user.getUserId());
-                preparedStatement.setInt(2, account_id);
-
-                result = preparedStatement.executeUpdate();
-                if(result == 1){
-                    Account newAccount = new Account(accountType.toString(), user, balance);
-                    System.out.println("account id" + account_id);
-                    return newAccount;
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
-    }
-
-    @Override
     public List<Account> getAllAccountsForUser(User user) {
   //public List<Account> getAllAccountsForUser(int user_id){
         List<Account> accountList = new ArrayList<>();
@@ -100,23 +70,6 @@ public class SqliteAccountDAO implements AccountDAO{
         }
 
         return accountList;
-    }
-
-    @Override
-    public double getBalance(Account account) {
-        try(Connection connection = DataBaseConnector.createConnection()){
-            String sql = "SELECT balance FROM bank WHERE account_id = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, account.getAccount_id());
-            ResultSet rs = preparedStatement.executeQuery();
-            if(rs.next()){
-                return rs.getDouble("balance");
-            }
-        }catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-
-        return -1;
     }
 
     @Override

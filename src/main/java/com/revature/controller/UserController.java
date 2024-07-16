@@ -33,6 +33,13 @@ public class UserController {
         this.userStatus = userStatus;
     }
 
+    /*
+        ***********************************
+        credential creation, checking block
+        ***********************************
+     */
+
+    //main control method for register, login, logout
     public void promptForCredentials(){
         System.out.println("What would you like to do today?");
         System.out.println("1. Register");
@@ -66,6 +73,55 @@ public class UserController {
         }
     }
 
+    //helper method creates a user object from user input
+    private User getCredentials(){
+        String username;
+        String password;
+        System.out.println("Please enter a username: ");
+        username = scanner.nextLine();
+        System.out.println("Please enter a password: ");
+        password = scanner.nextLine();
+
+        return new User(username,password);
+    }
+
+    //register requirement
+    private void registerNewUser(){
+
+        User newUserCredentials = getCredentials();
+        try {
+            User newUser = userService.createNewUser(newUserCredentials);
+            System.out.println("New account created: " + newUser.toString());
+            System.out.println();
+        }catch (InvalidNewUserCredentials exception){
+            System.out.println(exception.getMessage());
+            System.out.println("Press any key to continue or 'q' to quit registration");
+            String input = scanner.nextLine();
+            if(input.equals("q")) {
+                System.out.println("Leaving Registrations... \n");
+            } else
+                registerNewUser();
+        }
+    }
+
+    //login requirement
+    private void login(){
+        userStatus.setUser(userService.checkLoginCredentials(getCredentials()));
+    }
+
+    //logout requirement
+    private void quit(){
+        userStatus.setUser(null);
+        userStatus.setContinueLoop(false);
+    }
+
+    /*
+        *********************
+        Account actions block
+        *********************
+     */
+
+    //main control method for account manipulation
     public void promptAccountOptions(){
         System.out.println("What would you like to do today?");
         System.out.println("1. Account Summary");
@@ -106,39 +162,7 @@ public class UserController {
         }
     }
 
-    public User getCredentials(){
-        String username;
-        String password;
-        System.out.println("Please enter a username: ");
-        username = scanner.nextLine();
-        System.out.println("Please enter a password: ");
-        password = scanner.nextLine();
-
-        return new User(username,password);
-    }
-
-    public void registerNewUser(){
-
-        User newUserCredentials = getCredentials();
-        try {
-            User newUser = userService.validateNewUserCredentials(newUserCredentials);
-            System.out.println("New account created: " + newUser.toString());
-            System.out.println();
-        }catch (InvalidNewUserCredentials exception){
-            System.out.println(exception.getMessage());
-            System.out.println("Press any key to continue or 'q' to quit registration");
-            String input = scanner.nextLine();
-            if(input.equals("q")) {
-                System.out.println("Leaving Registrations... \n");
-            } else
-                registerNewUser();
-        }
-    }
-
-    public void login(){
-        userStatus.setUser(userService.checkLoginCredentials(getCredentials()));
-    }
-
+    //view account details requirement
     private void printSummary(){
         List<Account> accountList = accountServices.getAccountSummary(userStatus.getUser());
         for(Account account : accountList){
@@ -149,6 +173,7 @@ public class UserController {
         System.out.println();
     }
 
+    //create account requirement, takes in user input to select account type to be created
     private void createAccount(){
         System.out.println("What type of Account would you like to create?");
         System.out.println("1. CHECKING");
@@ -182,12 +207,14 @@ public class UserController {
         }
     }
 
+    //close account requirement, calls helper method to select account to be deleted
     private void closeAccount(){
         Account account = selectAccount();
         if(account != null)
             accountServices.deleteAccount(account);
     }
 
+    //withdraw requirement, calls helper methods to select account and select amount of money to withdraw
     private void withdraw(){
         Account account = selectAccount();
         try{
@@ -213,6 +240,7 @@ public class UserController {
         }
     }
 
+    //deposit requirement, calls helper methods to select account and select amount of money to deposit
     private void deposit(){
         Account account = selectAccount();
         try{
@@ -231,6 +259,31 @@ public class UserController {
         }
     }
 
+    //stretch goal implementation, allows multiple user to access 1 bank account
+    private void jointAccount(){
+        System.out.println("Alright lets start adding a user to one of your accounts");
+        System.out.println("Please select an account in which you want to add a new user to");
+        Account accountToBeJoined = this.selectAccount();
+        if(accountToBeJoined != null){
+            System.out.println("Please enter credentials for an existing user");
+            User newUser = userService.checkLoginCredentials(getCredentials());
+            if(newUser != null){
+                accountServices.createJointAccount(accountToBeJoined, newUser);
+                System.out.println("You have joined a bank account with User: " + newUser.getUsername());
+            } else
+                System.out.println("Invalid user credential provided, makes sure they are a registered user.");
+        } else {
+            System.out.println("Exiting account linking...");
+        }
+    }
+
+    /*
+        **************
+        helper methods
+        **************
+     */
+
+    //helper method to get user input for amount of money to withdraw or deposit
     private double getTransactionAmount(){
         String input = scanner.nextLine();
         double output = -1;
@@ -247,6 +300,7 @@ public class UserController {
         return output;
     }
 
+    //helper method to help select 1 specific account from list of accounts owned by current user
     private Account selectAccount(){
         List<Account> accountList = accountServices.getAccountSummary(userStatus.getUser());
         System.out.println("\nPlease select an account");
@@ -276,15 +330,12 @@ public class UserController {
         }
     }
 
+    //debugging method, to show what accounts we have already created
     private void getAllUsers(){
         userService.getAllUsers();
     }
 
-    private void quit(){
-        userStatus.setUser(null);
-        userStatus.setContinueLoop(false);
-    }
-
+    //unimportant helper methods
     private void viewBenefits(){
         String checkingBenefits = "CHECKING ACCOUNT: \n -No benefits, deposit and withdraw has no bonuses or penalties. \n\n";
         String savingBenefits = "SAVING ACCOUNT: \n -For every deposit over $1000 get a $5 bonus. \n" +
@@ -300,20 +351,4 @@ public class UserController {
         System.out.println("\n\n\n\n\n");
     }
 
-    private void jointAccount(){
-        System.out.println("Alright lets start adding a user to one of your accounts");
-        System.out.println("Please select an account in which you want to add a new user to");
-        Account accountToBeJoined = this.selectAccount();
-        if(accountToBeJoined != null){
-            System.out.println("Please enter credentials for an existing user");
-            User newUser = userService.checkLoginCredentials(getCredentials());
-            if(newUser != null){
-                accountServices.createJointAccount(accountToBeJoined, newUser);
-
-            } else
-                System.out.println("Invalid user credential provided, makes sure they are a registered user.");
-        } else {
-            System.out.println("Exiting account linking...");
-        }
-    }
 }
