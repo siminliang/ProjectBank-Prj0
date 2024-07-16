@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS bank;
 DROP TABLE IF EXISTS user_account_joint;
 DROP TRIGGER IF EXISTS delete_account_with_user;
+DROP TRIGGER IF EXISTS delete_bank_account;
 
 CREATE TABLE users(
 	user_id integer PRIMARY KEY autoincrement,
